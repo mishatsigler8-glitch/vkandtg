@@ -12,7 +12,7 @@ CONFIRMATION_TOKEN = "2d609c96"  # из VK
 
 # --- Telegram ---
 bot = Bot(token=TG_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()  # для aiogram v3+
 
 # --- VK ---
 vk_session = vk_api.VkApi(token=VK_TOKEN)
@@ -21,12 +21,11 @@ vk = vk_session.get_api()
 # --- Flask ---
 app = Flask(__name__)
 
-# 🔁 Telegram → VK
-@dp.message_handler()
+# Telegram → VK
+@dp.message()
 async def tg_to_vk(message: types.Message):
     if not message.text:
         return
-
     name = message.from_user.first_name
     text = message.text
 
@@ -36,19 +35,16 @@ async def tg_to_vk(message: types.Message):
         random_id=0
     )
 
-# 🔁 VK → Telegram
+# VK → Telegram
 @app.route("/", methods=["POST"])
 def vk_callback():
     data = request.json
 
-    # ✅ ПОДТВЕРЖДЕНИЕ VK (САМОЕ ВАЖНОЕ)
     if data["type"] == "confirmation":
         return CONFIRMATION_TOKEN
 
-    # 📩 Новое сообщение
     if data["type"] == "message_new":
         msg = data["object"]["message"]
-
         text = msg.get("text", "")
         user_id = msg.get("from_id")
 
@@ -56,23 +52,18 @@ def vk_callback():
             user = vk.users.get(user_ids=user_id)[0]
             name = user["first_name"]
 
-            asyncio.run(
-                bot.send_message(
-                    TG_CHAT_ID,
-                    f"Бот: {name}: {text}"
-                )
-            )
+            asyncio.run(bot.send_message(TG_CHAT_ID, f"Бот: {name}: {text}"))
 
         return "ok"
-
     return "ok"
 
-# 🚀 ЗАПУСК
-async def start_bot():
-    await dp.start_polling()
+# --- Запуск ---
+def run_flask():
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+def run_bot():
+    asyncio.run(dp.start_polling(bot))
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.create_task(start_bot())
-
-    app.run(host="0.0.0.0", port=5000)
+    threading.Thread(target=run_flask).start()
+    run_bot()
