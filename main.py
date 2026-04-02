@@ -1,24 +1,32 @@
-from aiogram import Bot, Dispatcher, types
-from flask import Flask, request
-import vk_api
 import asyncio
+from flask import Flask, request
+from aiogram import Bot, Dispatcher, types
+import vk_api
 
-TG_TOKEN = "TG_TOKEN"
-VK_TOKEN = "VK_TOKEN"
-VK_CHAT_ID = 2000000001  # беседа VK
-TG_CHAT_ID = -1001234567890  # чат/канал Telegram
+# 🔑 ВСТАВЬ СЮДА
+TG_TOKEN = "8684595244:AAEPmj5cWQRxidC8XnO2TrplHnDWhFDHeKU"
+VK_TOKEN = "vk1.a.H7EvteHaCkF_RBHlEV59_Pktk17P9sq4-SerX1EqXmNTIOxRI7atijG_nlDcbj7ZFwGlqbS5k8o_7I3MbhObWEXiz0Ssp3LtR1XE6mnAQUpggxJmVBKsIvc4sMoJjzFm7zGvKuEjK0kPRhV48K_xtZG93IM00TX1d_T6WL71vUKmGwjaQlycCVlKMkW_m1MYHeirLb4md5b4DW99yoNozA"
+VK_CHAT_ID = 2000000002  # ID беседы VK
+TG_CHAT_ID = -3380376400  # ID чата Telegram
+CONFIRMATION_TOKEN = "2d609c96"  # из VK
 
+# --- Telegram ---
 bot = Bot(token=TG_TOKEN)
 dp = Dispatcher(bot)
 
+# --- VK ---
 vk_session = vk_api.VkApi(token=VK_TOKEN)
 vk = vk_session.get_api()
 
+# --- Flask ---
 app = Flask(__name__)
 
-# ---------- Telegram → VK ----------
+# 🔁 Telegram → VK
 @dp.message_handler()
 async def tg_to_vk(message: types.Message):
+    if not message.text:
+        return
+
     name = message.from_user.first_name
     text = message.text
 
@@ -28,30 +36,43 @@ async def tg_to_vk(message: types.Message):
         random_id=0
     )
 
-# ---------- VK → Telegram ----------
+# 🔁 VK → Telegram
 @app.route("/", methods=["POST"])
 def vk_callback():
     data = request.json
 
+    # ✅ ПОДТВЕРЖДЕНИЕ VK (САМОЕ ВАЖНОЕ)
+    if data["type"] == "confirmation":
+        return CONFIRMATION_TOKEN
+
+    # 📩 Новое сообщение
     if data["type"] == "message_new":
         msg = data["object"]["message"]
-        text = msg["text"]
-        user_id = msg["from_id"]
 
-        user = vk.users.get(user_ids=user_id)[0]
-        name = user["first_name"]
+        text = msg.get("text", "")
+        user_id = msg.get("from_id")
 
-        asyncio.run(
-            bot.send_message(
-                TG_CHAT_ID,
-                f"Бот: {name}: {text}"
+        if text:
+            user = vk.users.get(user_ids=user_id)[0]
+            name = user["first_name"]
+
+            asyncio.run(
+                bot.send_message(
+                    TG_CHAT_ID,
+                    f"Бот: {name}: {text}"
+                )
             )
-        )
+
+        return "ok"
 
     return "ok"
 
-# ---------- запуск ----------
+# 🚀 ЗАПУСК
+async def start_bot():
+    await dp.start_polling()
+
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.create_task(dp.start_polling())
-    app.run(port=5000)
+    loop.create_task(start_bot())
+
+    app.run(host="0.0.0.0", port=5000)
