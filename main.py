@@ -1,6 +1,7 @@
 import asyncio
 from flask import Flask, request
 from aiogram import Bot, Dispatcher, types
+import threading
 import vk_api
 
 # 🔑 ВСТАВЬ СЮДА
