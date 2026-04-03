@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, types
 import vk_api
 
 # 🔑 ТОКЕНЫ (лучше вынести в ENV!)
-TG_TOKEN = "8684595244:AAEPmj5cWQRxidC8XnO2TrplHnDWhFDHeK"U
+TG_TOKEN = "8684595244:AAEPmj5cWQRxidC8XnO2TrplHnDWhFDHeKU"
 VK_TOKEN = "vk1.a.H7EvteHaCkF_RBHlEV59_Pktk17P9sq4-SerX1EqXmNTIOxRI7atijG_nlDcbj7ZFwGlqbS5k8o_7I3MbhObWEXiz0Ssp3LtR1XE6mnAQUpggxJmVBKsIvc4sMoJjzFm7zGvKuEjK0kPRhV48K_xtZG93IM00TX1d_T6WL71vUKmGwjaQlycCVlKMkW_m1MYHeirLb4md5b4DW99yoNozA"
 VK_CHAT_ID = 2000000002
 TG_CHAT_ID = -3380376400
