@@ -22,7 +22,6 @@ vk = vk_session.get_api()
 
 # --- Flask ---
 app = Flask(__name__)
-print("VK EVENT:", data)
 
 # 📩 Telegram → VK
 @dp.message()
