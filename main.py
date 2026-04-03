@@ -1,7 +1,7 @@
 import asyncio
 from flask import Flask, request
 from aiogram import Bot, Dispatcher, types
-import oc
+import oы
 import threading
 import vk_api
 
@@ -14,7 +14,7 @@ CONFIRMATION_TOKEN = "2d609c96"  # из VK
 
 # --- Telegram ---
 bot = Bot(token=TG_TOKEN)
-dp = Dispatcher()  # для aiogram v3+
+dp = Dispatcher(bot)  # для aiogram v3+
 
 # --- VK ---
 vk_session = vk_api.VkApi(token=VK_TOKEN)
