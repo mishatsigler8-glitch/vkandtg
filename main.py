@@ -14,7 +14,7 @@ CONFIRMATION_TOKEN = "22aa14be"
 
 # --- Telegram ---
 bot = Bot(token=TG_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
 
 # --- VK ---
 vk_session = vk_api.VkApi(token=VK_TOKEN)
