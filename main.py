@@ -22,6 +22,7 @@ vk = vk_session.get_api()
 
 # --- Flask ---
 app = Flask(__name__)
+print("VK EVENT:", data)
 
 # 📩 Telegram → VK
 @dp.message()
@@ -78,6 +79,7 @@ def run_flask():
     port = int(os.environ.get("PORT", 5000))
     print(f"Flask running on port {port}")
     app.run(host="0.0.0.0", port=port)
+    print("VK EVENT:", data)
 
 
 # --- Запуск бота ---
